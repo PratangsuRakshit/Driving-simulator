@@ -1,29 +1,17 @@
 from ursina import *
+from ursina.prefabs.first_person_controller import FirstPersonController
+from ursina.shaders.lit_with_shadows_shader import lit_with_shadows_shader
+
 app = Ursina()
 
-class Car(Entity):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.model = 'cube'
-        self.scale = Vec3(1, 1, 2)
-        self.speed = 5
-        self.can_turn = False
+test_road = Entity(model='plane', scale=100, texture='white_cube' ,color = color.white,collider = 'box',shader = lit_with_shadows_shader)
 
-    def update(self):
-        if held_keys['w']:
-            self.position += self.forward * time.dt * self.speed
-            self.speed += 0.01
-            self.can_turn = True
-        else:
-            self.can_turn = False
-        if held_keys['a'] and self.can_turn:
-            self.rotation_y -= self.speed * 10 * time.dt
-        if held_keys['d'] and self.can_turn:
-            self.rotation_y += self.speed * 10 * time.dt
+#editor_camera_test_car = Entity(model = 'Car.fbx',scale = 0.01,shader = lit_with_shadows_shader)
+#EditorCamera()
 
-test_road = Entity(model='plane', scale=100, texture='white_cube')
-Car().y += 0.5
+car = FirstPersonController(model = 'Car.fbx',scale = 0.005,color = color.white,shader = lit_with_shadows_shader)
+camera.z = -550
 
-EditorCamera()
+DirectionalLight(rotation=(45,45,45))
 
 app.run()
