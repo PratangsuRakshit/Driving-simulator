@@ -2,9 +2,11 @@ from ursina import *
 
 class CarController(Entity):
     def __init__(self, **kwargs):
-        self.cursor = Entity(parent=camera.ui, model='quad', color=color.pink, scale=.008, rotation_z=45)
-        super().__init__()
-        self.speed = 10
+        self.cursor = Entity(parent=camera.ui, model='quad', color=color.pink, scale=.008, rotation_z=45, world_parent=self)
+        super().__init__(parent=scene)
+
+        self.default_speed = 10
+        self.speed = self.default_speed
         self.height = 1
         self.camera_pivot = Entity(parent=self, y=self.height)
 
@@ -23,7 +25,7 @@ class CarController(Entity):
         self.air_time = 0
         self.can_turn = False
 
-        self.speed_display = Text()
+        self.speed_display = Text(world_parent=self, y=3.4, x=2, color=color.red)
 
         for key, value in kwargs.items():
             setattr(self, key ,value)
@@ -33,14 +35,16 @@ class CarController(Entity):
         self.camera_pivot.rotation_x -= mouse.velocity[1] * self.mouse_sensitivity[0]
         self.camera_pivot.rotation_x= clamp(self.camera_pivot.rotation_x, -90, 90)
 
+        self.speed_display.text = f'Speed:{int(self.speed)}'
+
         if held_keys['w']:
             self.position += self.forward * time.dt * self.speed * 20
             if self.speed < 75:
-                self.speed += 0.05
+                self.speed += 0.01
             self.can_turn = True
-            self.speed_display.text = f'Speed:{int(self.speed)}'
         else:
-            self.speed = 10
+            if self.speed > (self.default_speed + 1):
+                self.speed -= 0.05
             self.can_turn = False
 
         if held_keys['a'] and self.can_turn and self.grounded:
@@ -49,9 +53,6 @@ class CarController(Entity):
         elif held_keys['d'] and self.can_turn and self.grounded:
             self.speed_display.text = f'Speed:{int(self.speed)}'
             self.rotation_y += self.speed * 4 * time.dt
-
-        if not held_keys['w'] and not held_keys['a'] and not held_keys['d']:
-            self.speed_display.text = 'Speed:0'
 
         if self.gravity:
             # gravity
