@@ -10,7 +10,7 @@ class MainMenu(Entity):
             self.help_menu = Entity(parent=self, enabled=False)
 
             # Add a background. You can change 'shore' to a different texture of you'd like.
-            self.background = Sprite('shore', color=color.dark_gray, z=1, parent=self)
+            self.background = Sprite('shore', z=1, parent=self)
 
             # [MAIN MENU] WINDOW START
             # Title of our menu
@@ -81,28 +81,14 @@ class MainMenu(Entity):
             for key, value in kwargs.items():
                 setattr(self, key, value)
 
-            # Input function that check if key pressed on keyboard
+class SelectionMenu(Entity):
+    def __init__(self, game_parent, demo_parent, **kwargs):
+        super().__init__(**kwargs)
 
-        def input(self, key):
-            # And if you want use same keys on different windows
-            # Like [Escape] or [Enter] or [Arrows]
-            # Just write like that:
+        self.game_function = game_parent
+        self.demo_function = demo_parent
 
-            # If our main menu enabled and we press [Escape]
-            if self.main_menu.enabled:
-                if key == "escape":
-                    # Close app
-                    application.quit()
-
-            # If our options menu enabled and we press [Escape]
-            if self.options_menu.enabled:
-                if key == "escape":
-                    # Close options window and show main menu
-                    self.main_menu.enable()
-                    self.options_menu.disable()
-
-            # If our help menu enabled and we press [Escape]
-            if self.help_menu.enabled:
-                if key == "escape":
-                    self.main_menu.enable()
-                    self.help_menu.disable()
+        if self.enabled == True:
+            self.background = Sprite('shore', parent=self, z=1, scale=2)
+            self.game = Button(scale=(8, 4), position=(0, 2.5), parent=self, text='Game', on_click=Func(self.game_function))
+            self.demo = Button(scale=(8, 4), position=(0, -2.5), parent=self, text='Demo', on_click=Func(self.demo_function))
