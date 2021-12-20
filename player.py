@@ -32,47 +32,48 @@ class CarController(Entity):
 
 
     def update(self):
-        self.camera_pivot.rotation_x -= mouse.velocity[1] * self.mouse_sensitivity[0]
-        self.camera_pivot.rotation_x= clamp(self.camera_pivot.rotation_x, -90, 90)
+        if self.enabled == True:
+            self.camera_pivot.rotation_x -= mouse.velocity[1] * self.mouse_sensitivity[0]
+            self.camera_pivot.rotation_x= clamp(self.camera_pivot.rotation_x, -90, 90)
 
-        self.speed_display.text = f'Speed:{int(self.speed)}'
-
-        if held_keys['w']:
-            self.position += self.forward * time.dt * self.speed * 20
-            if self.speed < 75:
-                self.speed += 0.01
-            self.can_turn = True
-        else:
-            if self.speed > (self.default_speed + 1):
-                self.speed -= 0.05
-            self.can_turn = False
-
-        if held_keys['a'] and self.can_turn and self.grounded:
             self.speed_display.text = f'Speed:{int(self.speed)}'
-            self.rotation_y -= self.speed * 4 * time.dt
-        elif held_keys['d'] and self.can_turn and self.grounded:
-            self.speed_display.text = f'Speed:{int(self.speed)}'
-            self.rotation_y += self.speed * 4 * time.dt
 
-        if self.gravity:
-            # gravity
-            ray = raycast(self.world_position+(0,self.height,0), self.down, ignore=(self,))
-            # ray = boxcast(self.world_position+(0,2,0), self.down, ignore=(self,))
-
-            if ray.distance <= self.height+.1:
-                if not self.grounded:
-                    self.land()
-                self.grounded = True
-                # make sure it's not a wall and that the point is not too far up
-                if ray.world_normal.y > .7 and ray.world_point.y - self.world_y < .5: # walk up slope
-                    self.y = ray.world_point[1]
-                return
+            if held_keys['w']:
+                self.position += self.forward * time.dt * self.speed * 20
+                if self.speed < 75:
+                    self.speed += 0.01
+                self.can_turn = True
             else:
-                self.grounded = False
+                if self.speed > (self.default_speed + 1):
+                    self.speed -= 0.05
+                self.can_turn = False
 
-            # if not on ground and not on way up in jump, fall
-            self.y -= min(self.air_time, ray.distance-.05) * time.dt * 100
-            self.air_time += time.dt * .25 * self.gravity
+            if held_keys['a'] and self.can_turn and self.grounded:
+                self.speed_display.text = f'Speed:{int(self.speed)}'
+                self.rotation_y -= self.speed * 4 * time.dt
+            elif held_keys['d'] and self.can_turn and self.grounded:
+                self.speed_display.text = f'Speed:{int(self.speed)}'
+                self.rotation_y += self.speed * 4 * time.dt
+
+            if self.gravity:
+                # gravity
+                ray = raycast(self.world_position+(0,self.height,0), self.down, ignore=(self,))
+                # ray = boxcast(self.world_position+(0,2,0), self.down, ignore=(self,))
+
+                if ray.distance <= self.height+.1:
+                    if not self.grounded:
+                        self.land()
+                    self.grounded = True
+                    # make sure it's not a wall and that the point is not too far up
+                    if ray.world_normal.y > .7 and ray.world_point.y - self.world_y < .5: # walk up slope
+                        self.y = ray.world_point[1]
+                    return
+                else:
+                    self.grounded = False
+
+                # if not on ground and not on way up in jump, fall
+                self.y -= min(self.air_time, ray.distance-.05) * time.dt * 100
+                self.air_time += time.dt * .25 * self.gravity
 
 
     def input(self, key):
